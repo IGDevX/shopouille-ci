@@ -1,5 +1,5 @@
 name: ⚙️ CI Orchestrator
-run-name: ⚙️ ${{ github.event.client_payload.repository }}@${{ github.event.client_payload.branch }} (${{ github.event.client_payload.sha }}) • Triggered by ${{ github.event.client_payload.actor }}
+run-name: ⚙️ ${{ github.event.client_payload.repository }}@${{ github.event.client_payload.branch }} • Orchestrator
 on:
   repository_dispatch:
     types: [ci-trigger]
