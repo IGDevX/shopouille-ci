@@ -6,29 +6,27 @@ on:
       service:
         required: true
         type: string
-    secrets: inherit
-
-env:
-  SERVICE: ${{ inputs.service }}
-  COMMIT_SHA: ${{ github.event.client_payload.sha || github.sha }}
 
 jobs:
   tests:
     uses: ./.github/workflows/test.yml
     with:
       blocking: true
-      service: ${{ env.SERVICE }}
+      service: ${{ inputs.service }}
+    secrets: inherit
 
   coverage:
     needs: tests
     uses: ./.github/workflows/coverage.yml
     with:
       blocking: true
-      service: ${{ env.SERVICE }}
+      service: ${{ inputs.service }}
+    secrets: inherit
 
   lint:
     needs: coverage
     uses: ./.github/workflows/lint.yml
     with:
       blocking: true
-      service: ${{ env.SERVICE }}
+      service: ${{ inputs.service }}
+    secrets: inherit

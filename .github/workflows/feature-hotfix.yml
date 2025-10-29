@@ -6,14 +6,11 @@ on:
       service:
         required: true
         type: string
-    secrets: inherit
-
-env:
-  SERVICE: ${{ inputs.service }}
 
 jobs:
   tests:
     uses: ./.github/workflows/test.yml
     with:
       blocking: false
-      service: ${{ env.SERVICE }}
+      service: ${{ inputs.service }}
+    secrets: inherit

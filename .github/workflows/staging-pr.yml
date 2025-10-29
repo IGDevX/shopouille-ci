@@ -6,7 +6,6 @@ on:
       service:
         required: true
         type: string
-    secrets: inherit
 
 jobs:
   deploy:
@@ -14,3 +13,4 @@ jobs:
     with:
       environment: staging
       service: ${{ inputs.service }}
+    secrets: inherit

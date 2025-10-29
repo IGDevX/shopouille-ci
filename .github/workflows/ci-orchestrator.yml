@@ -29,21 +29,25 @@ jobs:
     uses: ./.github/workflows/feature-hotfix.yml
     with:
       service: ${{ needs.dispatch.outputs.service }}
+    secrets: inherit
 
   develop_pr:
     if: needs.dispatch.outputs.branch == 'develop'
     uses: ./.github/workflows/develop-pr.yml
     with:
       service: ${{ needs.dispatch.outputs.service }}
+    secrets: inherit
 
   staging_pr:
     if: needs.dispatch.outputs.branch == 'staging'
     uses: ./.github/workflows/staging-pr.yml
     with:
       service: ${{ needs.dispatch.outputs.service }}
+    secrets: inherit
 
   main_pr:
     if: needs.dispatch.outputs.branch == 'main'
     uses: ./.github/workflows/main-pr.yml
     with:
       service: ${{ needs.dispatch.outputs.service }}
+    secrets: inherit
