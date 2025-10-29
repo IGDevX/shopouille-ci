@@ -15,6 +15,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Log Context
-        run: echo "Linting ${{ inputs.service }} (actor: ${{ github.actor }}, branch: ${{ github.ref_name }})"
+        run: |
+          echo "Linting ${{ inputs.service }}"
+          echo "Actor: ${{ github.actor }}"
+          echo "Branch: ${{ github.ref_name }}"
       - name: Placeholder for lint job
+        id: result
         run: echo "status=success" >> $GITHUB_OUTPUT
