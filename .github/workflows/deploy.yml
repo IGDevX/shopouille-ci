@@ -12,18 +12,14 @@ on:
     secrets: inherit
 
 jobs:
-  prepare:
-    runs-on: ubuntu-latest
-    outputs:
-      argo_env: ${{ steps.env.outputs.env }}
-    steps:
-      - id: env
-        run: echo "env=${{ inputs.environment }}" >> $GITHUB_OUTPUT
-
   deploy:
     runs-on: ubuntu-latest
-    needs: [prepare]
     environment: ${{ inputs.environment }}
     steps:
+      - name: Log Context
+        run: |
+          echo "Deploying ${{ inputs.service }} to ${{ inputs.environment }}"
+          echo "Commit: ${{ github.sha }}"
+          echo "Triggered by: ${{ github.actor }}"
       - name: Placeholder for Helm + ArgoCD sync
-        run: echo "Deploying ${{ inputs.service }} to ${{ needs.prepare.outputs.argo_env }}"
+        run: echo "Argo sync for ${{ inputs.service }} to ${{ inputs.environment }}"

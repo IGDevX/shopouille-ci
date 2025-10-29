@@ -15,9 +15,10 @@ jobs:
   tests:
     runs-on: ubuntu-latest
     continue-on-error: ${{ !inputs.blocking }}
-    outputs:
-      result: ${{ steps.result.outputs.status }}
     steps:
+      - name: Log Context
+        run: |
+          echo "Running tests for ${{ inputs.service }}"
+          echo "Triggered by ${{ github.actor }} on ${{ github.repository }}@$${{ github.ref_name }}"
       - name: Placeholder for actual test steps
-        id: result
         run: echo "status=success" >> $GITHUB_OUTPUT

@@ -14,11 +14,9 @@ on:
 jobs:
   coverage:
     runs-on: ubuntu-latest
-    needs: []
-    continue-on-error: false
-    outputs:
-      coverage_passed: ${{ steps.result.outputs.status }}
     steps:
+      - name: Contextual Coverage Log
+        run: |
+          echo "Running coverage for ${{ inputs.service }} (commit ${{ github.sha }})"
       - name: Placeholder for JaCoCo coverage
-        id: result
         run: echo "status=success" >> $GITHUB_OUTPUT

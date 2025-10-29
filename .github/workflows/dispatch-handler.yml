@@ -1,0 +1,34 @@
+name: Dispatch Handler
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["develop", "staging", "main"]
+
+jobs:
+  handle:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Determine event context
+        id: ctx
+        run: |
+          echo "repo=${{ github.repository }}" >> $GITHUB_OUTPUT
+          echo "branch=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          echo "actor=${{ github.actor }}" >> $GITHUB_OUTPUT
+          echo "sha=${{ github.sha }}" >> $GITHUB_OUTPUT
+          echo "event=${{ github.event_name }}" >> $GITHUB_OUTPUT
+
+      - name: Trigger centralized CI orchestrator
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          repository: igdevx/shopouille-ci
+          event-type: ci-trigger
+          client-payload: |
+            {
+              "repository": "${{ github.repository }}",
+              "branch": "${{ github.ref_name }}",
+              "actor": "${{ github.actor }}",
+              "sha": "${{ github.sha }}",
+              "event_name": "${{ github.event_name }}"
+            }

@@ -2,9 +2,18 @@ name: Feature & Hotfix Pipeline
 
 on:
   workflow_call:
+    inputs:
+      service:
+        required: true
+        type: string
+    secrets: inherit
+
+env:
+  SERVICE: ${{ inputs.service }}
 
 jobs:
   tests:
     uses: ./.github/workflows/test.yml
     with:
-      continue-on-error: true
+      blocking: false
+      service: ${{ env.SERVICE }}

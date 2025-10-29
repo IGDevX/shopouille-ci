@@ -14,9 +14,8 @@ on:
 jobs:
   lint:
     runs-on: ubuntu-latest
-    outputs:
-      lint_status: ${{ steps.result.outputs.status }}
     steps:
+      - name: Log Context
+        run: echo "Linting ${{ inputs.service }} (actor: ${{ github.actor }}, branch: ${{ github.ref_name }})"
       - name: Placeholder for lint job
-        id: result
         run: echo "status=success" >> $GITHUB_OUTPUT

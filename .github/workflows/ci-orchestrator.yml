@@ -4,29 +4,46 @@ on:
   repository_dispatch:
     types: [ci-trigger]
 
+env:
+  SERVICE_REPO: ${{ github.event.client_payload.repository }}
+  BRANCH_NAME:  ${{ github.event.client_payload.branch }}
+  ACTOR_NAME:   ${{ github.event.client_payload.actor }}
+  COMMIT_SHA:   ${{ github.event.client_payload.sha }}
+  EVENT_NAME:   ${{ github.event.client_payload.event_name }}
+
 jobs:
   dispatch:
     runs-on: ubuntu-latest
     outputs:
-      branch: ${{ steps.extract.outputs.branch }}
+      branch: ${{ env.BRANCH_NAME }}
+      service: ${{ env.SERVICE_REPO }}
     steps:
-      - name: Extract branch from payload
-        id: extract
+      - name: Log context
         run: |
-          echo "branch=${{ github.event.client_payload.branch }}" >> $GITHUB_OUTPUT
+          echo "Triggered by $ACTOR_NAME on $SERVICE_REPO@$BRANCH_NAME ($COMMIT_SHA)"
+          echo "Branch: $BRANCH_NAME"
+          echo "Service: $SERVICE_REPO"
 
   feature_hotfix:
     if: startsWith(needs.dispatch.outputs.branch, 'feature/') || startsWith(needs.dispatch.outputs.branch, 'hotfix/')
     uses: ./.github/workflows/feature-hotfix.yml
+    with:
+      service: ${{ needs.dispatch.outputs.service }}
 
   develop_pr:
     if: needs.dispatch.outputs.branch == 'develop'
     uses: ./.github/workflows/develop-pr.yml
+    with:
+      service: ${{ needs.dispatch.outputs.service }}
 
   staging_pr:
     if: needs.dispatch.outputs.branch == 'staging'
     uses: ./.github/workflows/staging-pr.yml
+    with:
+      service: ${{ needs.dispatch.outputs.service }}
 
   main_pr:
     if: needs.dispatch.outputs.branch == 'main'
     uses: ./.github/workflows/main-pr.yml
+    with:
+      service: ${{ needs.dispatch.outputs.service }}

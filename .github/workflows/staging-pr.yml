@@ -2,9 +2,15 @@ name: Staging Deployment Pipeline
 
 on:
   workflow_call:
+    inputs:
+      service:
+        required: true
+        type: string
+    secrets: inherit
 
 jobs:
   deploy:
     uses: ./.github/workflows/deploy.yml
     with:
       environment: staging
+      service: ${{ inputs.service }}
