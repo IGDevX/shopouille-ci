@@ -1,4 +1,5 @@
-name: Run Tests (Reusable)
+name: 🧪 Tests
+run-name: 🧪 ${{ inputs.service }} • Test Stage
 
 on:
   workflow_call:

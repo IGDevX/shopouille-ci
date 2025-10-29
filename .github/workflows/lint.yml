@@ -1,4 +1,5 @@
-name: Lint (Reusable)
+name: 🔍 Lint
+run-name: 🔍 ${{ inputs.service }} • Lint Checks
 
 on:
   workflow_call:

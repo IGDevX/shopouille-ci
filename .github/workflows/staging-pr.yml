@@ -1,4 +1,5 @@
-name: Staging Deployment Pipeline
+name: 🚀 Staging Deployment Pipeline
+run-name: 🚀 ${{ inputs.service }} • Deploy to Staging
 
 on:
   workflow_call:

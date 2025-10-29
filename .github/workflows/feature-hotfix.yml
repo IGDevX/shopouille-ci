@@ -1,4 +1,5 @@
-name: Feature & Hotfix Pipeline
+name: 🧪 Feature & Hotfix Pipeline
+run-name: 🧪 ${{ inputs.service }}@${{ github.ref_name }} • Feature/Hotfix
 
 on:
   workflow_call:

@@ -1,4 +1,5 @@
-name: Production Deployment Pipeline
+name: 🏁 Production Deployment Pipeline
+run-name: 🏁 ${{ inputs.service }} • Deploy to Production
 
 on:
   workflow_call:

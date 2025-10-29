@@ -1,4 +1,5 @@
-name: Develop Validation Pipeline
+name: 🧱 Develop Validation Pipeline
+run-name: 🧱 ${{ inputs.service }} • Develop Validation
 
 on:
   workflow_call:

@@ -1,4 +1,5 @@
-name: Coverage Check (Reusable)
+name: 📊 Coverage
+run-name: 📊 ${{ inputs.service }} • Coverage Analysis
 
 on:
   workflow_call:
