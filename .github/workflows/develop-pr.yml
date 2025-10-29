@@ -1,0 +1,16 @@
+name: Develop Validation Pipeline
+
+on:
+  workflow_call:
+
+jobs:
+  tests:
+    uses: ./.github/workflows/test.yml
+
+  coverage:
+    needs: tests
+    uses: ./.github/workflows/coverage.yml
+
+  lint:
+    needs: coverage
+    uses: ./.github/workflows/lint.yml

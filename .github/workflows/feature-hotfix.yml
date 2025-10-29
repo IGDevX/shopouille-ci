@@ -1,0 +1,10 @@
+name: Feature & Hotfix Pipeline
+
+on:
+  workflow_call:
+
+jobs:
+  tests:
+    uses: ./.github/workflows/test.yml
+    with:
+      continue-on-error: true

@@ -1,0 +1,22 @@
+name: Lint (Reusable)
+
+on:
+  workflow_call:
+    inputs:
+      blocking:
+        required: true
+        type: boolean
+      service:
+        required: true
+        type: string
+    secrets: inherit
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    outputs:
+      lint_status: ${{ steps.result.outputs.status }}
+    steps:
+      - name: Placeholder for lint job
+        id: result
+        run: echo "status=success" >> $GITHUB_OUTPUT

@@ -1,0 +1,24 @@
+name: Coverage Check (Reusable)
+
+on:
+  workflow_call:
+    inputs:
+      blocking:
+        required: true
+        type: boolean
+      service:
+        required: true
+        type: string
+    secrets: inherit
+
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+    needs: []
+    continue-on-error: false
+    outputs:
+      coverage_passed: ${{ steps.result.outputs.status }}
+    steps:
+      - name: Placeholder for JaCoCo coverage
+        id: result
+        run: echo "status=success" >> $GITHUB_OUTPUT
