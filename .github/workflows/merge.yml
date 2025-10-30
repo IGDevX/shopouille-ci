@@ -7,7 +7,6 @@ on:
       service:
         required: true
         type: string
-    secrets: inherit
 
 jobs:
   merge:
