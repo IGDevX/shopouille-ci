@@ -10,6 +10,7 @@ env:
   ACTOR_NAME:   ${{ github.event.client_payload.actor }}
   COMMIT_SHA:   ${{ github.event.client_payload.sha }}
   EVENT_NAME:   ${{ github.event.client_payload.event_name }}
+  PR_NUMBER:    ${{ github.event.client_payload.pull_request_number }}
 
 jobs:
   dispatch:
@@ -55,3 +56,152 @@ jobs:
     with:
       service: ${{ needs.dispatch.outputs.service }}
     secrets: inherit
+
+  final-status:
+    name: 🏁 Final CI Status
+    if: ${{ always() }}
+    needs:
+      - dispatch
+      - feature_hotfix
+      - develop_pr
+      - staging_pr
+      - main_pr
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Determine overall result
+        id: result
+        run: |
+          # Aggregate job results
+          if [ "${{ needs.feature_hotfix.result }}" = "failure" ] || \
+             [ "${{ needs.develop_pr.result }}" = "failure" ] || \
+             [ "${{ needs.staging_pr.result }}" = "failure" ] || \
+             [ "${{ needs.main_pr.result }}" = "failure" ]; then
+            echo "status=failure" >> $GITHUB_OUTPUT
+          elif [ "${{ needs.feature_hotfix.result }}" = "success" ] || \
+               [ "${{ needs.develop_pr.result }}" = "success" ] || \
+               [ "${{ needs.staging_pr.result }}" = "success" ] || \
+               [ "${{ needs.main_pr.result }}" = "success" ]; then
+            echo "status=success" >> $GITHUB_OUTPUT
+          else
+            echo "status=neutral" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Print final status
+        run: echo "Final CI status: ${{ steps.result.outputs.status }}"
+
+      - name: Update commit status in service repo
+        if: ${{ github.event.client_payload.sha != '' }}
+        uses: Sibz/github-status-action@v1.1.2
+        with:
+          authToken: ${{ secrets.CI_DISPATCH_TOKEN }}
+          context: "Shopouille-CI / Centralized"
+          description: "CI result: ${{ steps.result.outputs.status }}"
+          state: ${{ steps.result.outputs.status }}
+          sha: ${{ env.COMMIT_SHA }}
+          owner: ${{ env.SERVICE_REPO.split('/')[0] }}
+          repo: ${{ env.SERVICE_REPO.split('/')[1] }}
+          target_url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+      # 🗨️ Add PR feedback comment
+      - name: Comment on PR with results
+        if: ${{ env.EVENT_NAME == 'pull_request' }}
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          token: ${{ secrets.CI_DISPATCH_TOKEN }}
+          repository: ${{ env.SERVICE_REPO }}
+          issue-number: ${{ env.PR_NUMBER }}
+          body: |
+            ### 🏁 **Shopouille Central CI Results**
+
+            **Service:** `${{ env.SERVICE_REPO }}`
+            **Branch:** `${{ env.BRANCH_NAME }}`
+            **Commit:** `${{ env.COMMIT_SHA }}`
+            **Triggered by:** `${{ env.ACTOR_NAME }}`
+
+            **Result:** ${{ steps.result.outputs.status == 'success' && '✅ Success' || steps.result.outputs.status == 'failure' && '❌ Failure' || '⚪ Neutral' }}
+
+            [View full CI run logs →](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+
+            ---
+            _This comment was generated automatically by [Shopouille-CI](https://github.com/IGDevX/shopouille-ci)._
+
+  final-status:
+    name: 🏁 Final CI Status
+    if: ${{ always() }}
+    needs:
+      - dispatch
+      - feature_hotfix
+      - develop_pr
+      - staging_pr
+      - main_pr
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Determine overall result
+        id: result
+        run: |
+          if [ "${{ needs.feature_hotfix.result }}" = "failure" ] || \
+             [ "${{ needs.develop_pr.result }}" = "failure" ] || \
+             [ "${{ needs.staging_pr.result }}" = "failure" ] || \
+             [ "${{ needs.main_pr.result }}" = "failure" ]; then
+            echo "status=failure" >> $GITHUB_OUTPUT
+            echo "badge=❌ Failure" >> $GITHUB_OUTPUT
+          elif [ "${{ needs.feature_hotfix.result }}" = "success" ] || \
+               [ "${{ needs.develop_pr.result }}" = "success" ] || \
+               [ "${{ needs.staging_pr.result }}" = "success" ] || \
+               [ "${{ needs.main_pr.result }}" = "success" ]; then
+            echo "status=success" >> $GITHUB_OUTPUT
+            echo "badge=✅ Success" >> $GITHUB_OUTPUT
+          else
+            echo "status=neutral" >> $GITHUB_OUTPUT
+            echo "badge=⚪ Neutral" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Print final status
+        run: |
+          echo "Final CI status: ${{ steps.result.outputs.status }}"
+
+      - name: Update commit status in service repo
+        if: ${{ github.event.client_payload.sha != '' }}
+        uses: Sibz/github-status-action@v1.1.2
+        with:
+          authToken: ${{ secrets.CI_DISPATCH_TOKEN }}
+          context: "Shopouille-CI / Centralized"
+          description: "CI result: ${{ steps.result.outputs.status }}"
+          state: ${{ steps.result.outputs.status }}
+          sha: ${{ env.COMMIT_SHA }}
+          owner: ${{ env.SERVICE_REPO.split('/')[0] }}
+          repo: ${{ env.SERVICE_REPO.split('/')[1] }}
+          target_url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+      # 🗨️ Add or update PR feedback comment
+      - name: Comment on PR with results
+        if: ${{ env.EVENT_NAME == 'pull_request' }}
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          token: ${{ secrets.CI_DISPATCH_TOKEN }}
+          repository: ${{ env.SERVICE_REPO }}
+          issue-number: ${{ env.PR_NUMBER }}
+          edit-mode: replace
+          comment-author: github-actions[bot]
+          body: |
+            ### 🏁 **Shopouille Central CI Results**
+
+            **Service:** `${{ env.SERVICE_REPO }}`
+            **Branch:** `${{ env.BRANCH_NAME }}`
+            **Commit:** `${{ env.COMMIT_SHA }}`
+            **Triggered by:** `${{ env.ACTOR_NAME }}`
+
+            **Result:** ${{ steps.result.outputs.badge }}
+
+            #### 📦 Artifacts
+            - 🧪 [Test Report](https://github.com/IGDevX/shopouille-ci/actions/runs/${{ github.run_id }}#artifacts)
+            - 📊 [Coverage Report](https://github.com/IGDevX/shopouille-ci/actions/runs/${{ github.run_id }}#artifacts)
+            - 🔍 [Lint Logs](https://github.com/IGDevX/shopouille-ci/actions/runs/${{ github.run_id }}#artifacts)
+            - 🚀 [Deploy Logs](https://github.com/IGDevX/shopouille-ci/actions/runs/${{ github.run_id }}#artifacts)
+
+            [➡️ View full CI run logs →](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+
+            ---
+            _This comment is automatically updated by [Shopouille-CI](https://github.com/IGDevX/shopouille-ci)._
