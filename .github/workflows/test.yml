@@ -10,15 +10,68 @@ on:
       service:
         required: true
         type: string
+      sha:
+        required: true
+        type: string
 
 jobs:
   tests:
+    name: 🧪 Run Tests for ${{ inputs.service }}
     runs-on: ubuntu-latest
     continue-on-error: ${{ !inputs.blocking }}
+
     steps:
-      - name: Log Context
+      - name: 🧾 Log Context
         run: |
-          echo "Running tests for ${{ inputs.service }}"
-          echo "Triggered by ${{ github.actor }} on ${{ github.repository }}@$${{ github.ref_name }}"
-      - name: Placeholder for actual test steps
-        run: echo "status=success" >> $GITHUB_OUTPUT
+          echo "🧪 Running tests for: ${{ inputs.service }}"
+          echo "Triggered by: ${{ github.actor }}"
+          echo "Workflow Repository: ${{ github.repository }}"
+          echo "Target Commit: ${{ inputs.sha }}"
+
+      # ----------------------------------------------
+      # 🔽 CHECKOUT TARGET SERVICE REPOSITORY
+      # ----------------------------------------------
+      - name: 📦 Checkout target service code
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ inputs.service }}
+          ref: ${{ inputs.sha }}
+          token: ${{ secrets.CI_DISPATCH_TOKEN }}
+
+      # ----------------------------------------------
+      # 🧰 SETUP BUILD ENVIRONMENT
+      # ----------------------------------------------
+      - name: ☕ Set up JDK 21
+        if: hashFiles('pom.xml') != ''
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: 🧱 Install dependencies (Java/Maven)
+        if: hashFiles('pom.xml') != ''
+        run: mvn -B clean compile
+
+      # ----------------------------------------------
+      # 🧪 RUN TESTS
+      # ----------------------------------------------
+      - name: 🧪 Run Maven Tests
+        if: hashFiles('pom.xml') != ''
+        run: mvn -B test
+
+      - name: 🧪 Run Gradle Tests
+        if: hashFiles('build.gradle*') != ''
+        run: ./gradlew test
+
+      # ----------------------------------------------
+      # 📦 UPLOAD TEST RESULTS (optional, visible in central CI)
+      # ----------------------------------------------
+      - name: 📤 Upload Test Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ inputs.service }}
+          path: |
+            target/surefire-reports/**
+            build/test-results/**
+          if-no-files-found: ignore

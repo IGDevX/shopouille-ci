@@ -7,6 +7,9 @@ on:
       service:
         required: true
         type: string
+      sha:
+        required: true
+        type: string
 
 jobs:
   tests:
@@ -14,4 +17,6 @@ jobs:
     with:
       blocking: false
       service: ${{ inputs.service }}
+      sha: ${{ inputs.sha }}
+
     secrets: inherit

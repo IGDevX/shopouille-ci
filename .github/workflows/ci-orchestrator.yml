@@ -18,6 +18,7 @@ jobs:
     outputs:
       branch: ${{ env.BRANCH_NAME }}
       service: ${{ env.SERVICE_REPO }}
+      sha: ${{ env.COMMIT_SHA }}
       event_name: ${{ env.EVENT_NAME }}
     steps:
       - name: Log context
@@ -32,6 +33,7 @@ jobs:
     uses: ./.github/workflows/feature-hotfix.yml
     with:
       service: ${{ needs.dispatch.outputs.service }}
+      sha: ${{ needs.dispatch.outputs.sha }}
     secrets: inherit
 
   pr:
@@ -40,6 +42,7 @@ jobs:
     uses: ./.github/workflows/pr.yml
     with:
       service: ${{ needs.dispatch.outputs.service }}
+      sha: ${{ needs.dispatch.outputs.sha }}
     secrets: inherit
 
   merge:
