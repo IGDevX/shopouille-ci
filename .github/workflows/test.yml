@@ -42,26 +42,25 @@ jobs:
       # 🧰 SETUP BUILD ENVIRONMENT
       # ----------------------------------------------
       - name: ☕ Set up JDK 21
-        if: hashFiles('pom.xml') != ''
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
+          cache: gradle
 
-      - name: 🧱 Install dependencies (Java/Maven)
-        if: hashFiles('pom.xml') != ''
-        run: mvn -B clean compile
+      # ----------------------------------------------
+      # 🧱 Install dependencies
+      # ----------------------------------------------
+      - name: 🧱 Install dependencies (Gradle)
+        if: hashFiles('build.gradle*') != ''
+        run: ./gradlew clean assemble --no-daemon
 
       # ----------------------------------------------
       # 🧪 RUN TESTS
       # ----------------------------------------------
-      - name: 🧪 Run Maven Tests
-        if: hashFiles('pom.xml') != ''
-        run: mvn -B test
-
       - name: 🧪 Run Gradle Tests
         if: hashFiles('build.gradle*') != ''
-        run: ./gradlew test
+        run: ./gradlew test --no-daemon --stacktrace
 
       # ----------------------------------------------
       # 📦 UPLOAD TEST RESULTS (optional, visible in central CI)
