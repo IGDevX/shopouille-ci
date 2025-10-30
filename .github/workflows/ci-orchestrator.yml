@@ -75,6 +75,7 @@ jobs:
       - develop_pr
       - staging_pr
       - main_pr
+      - merge
     runs-on: ubuntu-latest
 
     steps:
