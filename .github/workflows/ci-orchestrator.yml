@@ -34,26 +34,10 @@ jobs:
       service: ${{ needs.dispatch.outputs.service }}
     secrets: inherit
 
-  develop_pr:
+  pr:
     needs: [dispatch]
-    if: needs.dispatch.outputs.event_name == 'pull_request' && needs.dispatch.outputs.branch == 'develop'
-    uses: ./.github/workflows/develop-pr.yml
-    with:
-      service: ${{ needs.dispatch.outputs.service }}
-    secrets: inherit
-
-  staging_pr:
-    needs: [dispatch]
-    if: needs.dispatch.outputs.event_name == 'pull_request' && needs.dispatch.outputs.branch == 'staging'
-    uses: ./.github/workflows/staging-pr.yml
-    with:
-      service: ${{ needs.dispatch.outputs.service }}
-    secrets: inherit
-
-  main_pr:
-    needs: [dispatch]
-    if: needs.dispatch.outputs.event_name == 'pull_request' && needs.dispatch.outputs.branch == 'main'
-    uses: ./.github/workflows/main-pr.yml
+    if: ${{ needs.dispatch.outputs.event_name == 'pull_request' && contains('develop,staging,main', needs.dispatch.outputs.branch) }}
+    uses: ./.github/workflows/pr.yml
     with:
       service: ${{ needs.dispatch.outputs.service }}
     secrets: inherit
@@ -72,9 +56,7 @@ jobs:
     needs:
       - dispatch
       - feature_hotfix
-      - develop_pr
-      - staging_pr
-      - main_pr
+      - pr
       - merge
     runs-on: ubuntu-latest
 
@@ -84,16 +66,12 @@ jobs:
         run: |
           if [ "${{ needs.feature_hotfix.result }}" = "failure" ] || \
              [ "${{ needs.merge.result }}" = "failure" ] || \
-             [ "${{ needs.develop_pr.result }}" = "failure" ] || \
-             [ "${{ needs.staging_pr.result }}" = "failure" ] || \
-             [ "${{ needs.main_pr.result }}" = "failure" ]; then
+             [ "${{ needs.pr.result }}" = "failure" ]; then
             echo "status=failure" >> $GITHUB_OUTPUT
             echo "badge=❌ Failure" >> $GITHUB_OUTPUT
           elif [ "${{ needs.feature_hotfix.result }}" = "success" ] || \
                [ "${{ needs.merge.result }}" = "success" ] || \
-               [ "${{ needs.develop_pr.result }}" = "success" ] || \
-               [ "${{ needs.staging_pr.result }}" = "success" ] || \
-               [ "${{ needs.main_pr.result }}" = "success" ]; then
+               [ "${{ needs.pr.result }}" = "success" ]; then
             echo "status=success" >> $GITHUB_OUTPUT
             echo "badge=✅ Success" >> $GITHUB_OUTPUT
           else
@@ -150,7 +128,6 @@ jobs:
             - 🧪 [Test Report](https://github.com/IGDevX/shopouille-ci/actions/runs/${{ github.run_id }}#artifacts)
             - 📊 [Coverage Report](https://github.com/IGDevX/shopouille-ci/actions/runs/${{ github.run_id }}#artifacts)
             - 🔍 [Lint Logs](https://github.com/IGDevX/shopouille-ci/actions/runs/${{ github.run_id }}#artifacts)
-            - 🚀 [Deploy Logs](https://github.com/IGDevX/shopouille-ci/actions/runs/${{ github.run_id }}#artifacts)
 
             [➡️ View full CI run logs →](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
 
