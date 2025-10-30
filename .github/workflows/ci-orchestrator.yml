@@ -83,20 +83,22 @@ jobs:
         id: result
         run: |
           if [ "${{ needs.feature_hotfix.result }}" = "failure" ] || \
+             [ "${{ needs.merge.result }}" = "failure" ] || \
              [ "${{ needs.develop_pr.result }}" = "failure" ] || \
              [ "${{ needs.staging_pr.result }}" = "failure" ] || \
              [ "${{ needs.main_pr.result }}" = "failure" ]; then
             echo "status=failure" >> $GITHUB_OUTPUT
             echo "badge=❌ Failure" >> $GITHUB_OUTPUT
           elif [ "${{ needs.feature_hotfix.result }}" = "success" ] || \
+               [ "${{ needs.merge.result }}" = "success" ] || \
                [ "${{ needs.develop_pr.result }}" = "success" ] || \
                [ "${{ needs.staging_pr.result }}" = "success" ] || \
                [ "${{ needs.main_pr.result }}" = "success" ]; then
             echo "status=success" >> $GITHUB_OUTPUT
             echo "badge=✅ Success" >> $GITHUB_OUTPUT
           else
-            echo "status=neutral" >> $GITHUB_OUTPUT
-            echo "badge=⚪ Neutral" >> $GITHUB_OUTPUT
+            echo "status=pending" >> $GITHUB_OUTPUT
+            echo "badge=⚪ Pending" >> $GITHUB_OUTPUT
           fi
 
       - name: Print final status
