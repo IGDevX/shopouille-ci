@@ -11,6 +11,7 @@ env:
   COMMIT_SHA:   ${{ github.event.client_payload.sha }}
   EVENT_NAME:   ${{ github.event.client_payload.event_name }}
   PR_NUMBER:    ${{ github.event.client_payload.pull_request_number }}
+  WORKFLOW_URL: ${{ github.event.client_payload.workflow_url }}
 
 jobs:
   dispatch:
@@ -93,13 +94,11 @@ jobs:
         run: |
           echo "Final CI status: ${{ steps.result.outputs.status }}"
 
-      - name: Extract repo owner and name
+      - name: Extract repo owner
         id: extract_repo
         run: |
           OWNER=$(echo "${{ env.SERVICE_REPO }}" | cut -d'/' -f1)
-          REPO=$(echo "${{ env.SERVICE_REPO }}" | cut -d'/' -f2)
           echo "owner=$OWNER" >> $GITHUB_OUTPUT
-          echo "repo=$REPO" >> $GITHUB_OUTPUT
 
       - name: Update commit status in service repo
         if: ${{ github.event.client_payload.sha != '' }}
@@ -111,8 +110,7 @@ jobs:
           state: ${{ steps.result.outputs.status }}
           sha: ${{ env.COMMIT_SHA }}
           owner: ${{ steps.extract_repo.outputs.owner }}
-          repo: ${{ steps.extract_repo.outputs.repo }}
-          target_url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          target_url: ${{ env.WORKFLOW_URL }}
 
       # 🗨️ Add or update PR feedback comment
       - name: Comment on PR with results
