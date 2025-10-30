@@ -34,6 +34,7 @@ jobs:
     secrets: inherit
 
   develop_pr:
+    needs: [dispatch]
     if: needs.dispatch.outputs.branch == 'develop'
     uses: ./.github/workflows/develop-pr.yml
     with:
@@ -41,6 +42,7 @@ jobs:
     secrets: inherit
 
   staging_pr:
+    needs: [dispatch]
     if: needs.dispatch.outputs.branch == 'staging'
     uses: ./.github/workflows/staging-pr.yml
     with:
@@ -48,6 +50,7 @@ jobs:
     secrets: inherit
 
   main_pr:
+    needs: [dispatch]
     if: needs.dispatch.outputs.branch == 'main'
     uses: ./.github/workflows/main-pr.yml
     with:
