@@ -13,48 +13,32 @@ env:
   PR_NUMBER:    ${{ github.event.client_payload.pull_request_number }}
 
 jobs:
-  dispatch:
-    runs-on: ubuntu-latest
-    outputs:
-      branch: ${{ env.BRANCH_NAME }}
-      service: ${{ env.SERVICE_REPO }}
-    steps:
-      - name: Log context
-        run: |
-          echo "Triggered by $ACTOR_NAME on $SERVICE_REPO@$BRANCH_NAME ($COMMIT_SHA)"
-          echo "Branch: $BRANCH_NAME"
-          echo "Service: $SERVICE_REPO"
-
   feature_hotfix:
-    needs: [dispatch]
-    if: startsWith(needs.dispatch.outputs.branch, 'feature/') || startsWith(needs.dispatch.outputs.branch, 'hotfix/')
+    if: startsWith(env.BRANCH_NAME, 'feature/') || startsWith(env.BRANCH_NAME, 'hotfix/')
     uses: ./.github/workflows/feature-hotfix.yml
     with:
-      service: ${{ needs.dispatch.outputs.service }}
+      service: ${{ env.SERVICE_REPO }}
     secrets: inherit
 
   develop_pr:
-    needs: [dispatch]
-    if: needs.dispatch.outputs.branch == 'develop'
+    if: env.BRANCH_NAME == 'develop'
     uses: ./.github/workflows/develop-pr.yml
     with:
-      service: ${{ needs.dispatch.outputs.service }}
+      service: ${{ env.SERVICE_REPO }}
     secrets: inherit
 
   staging_pr:
-    needs: [dispatch]
-    if: needs.dispatch.outputs.branch == 'staging'
+    if: env.BRANCH_NAME == 'staging'
     uses: ./.github/workflows/staging-pr.yml
     with:
-      service: ${{ needs.dispatch.outputs.service }}
+      service: ${{ env.SERVICE_REPO }}
     secrets: inherit
 
   main_pr:
-    needs: [dispatch]
-    if: needs.dispatch.outputs.branch == 'main'
+    if: env.BRANCH_NAME == 'main'
     uses: ./.github/workflows/main-pr.yml
     with:
-      service: ${{ needs.dispatch.outputs.service }}
+      service: ${{ env.SERVICE_REPO }}
     secrets: inherit
 
   final-status:
