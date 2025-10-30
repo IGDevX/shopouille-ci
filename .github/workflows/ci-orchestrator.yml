@@ -93,6 +93,14 @@ jobs:
         run: |
           echo "Final CI status: ${{ steps.result.outputs.status }}"
 
+      - name: Extract repo owner and name
+        id: extract_repo
+        run: |
+          OWNER=$(echo "${{ env.SERVICE_REPO }}" | cut -d'/' -f1)
+          REPO=$(echo "${{ env.SERVICE_REPO }}" | cut -d'/' -f2)
+          echo "owner=$OWNER" >> $GITHUB_OUTPUT
+          echo "repo=$REPO" >> $GITHUB_OUTPUT
+
       - name: Update commit status in service repo
         if: ${{ github.event.client_payload.sha != '' }}
         uses: Sibz/github-status-action@v1.1.2
@@ -102,8 +110,8 @@ jobs:
           description: "CI result: ${{ steps.result.outputs.status }}"
           state: ${{ steps.result.outputs.status }}
           sha: ${{ env.COMMIT_SHA }}
-          owner: ${{ env.SERVICE_REPO.split('/')[0] }}
-          repo: ${{ env.SERVICE_REPO.split('/')[1] }}
+          owner: ${{ steps.extract_repo.outputs.owner }}
+          repo: ${{ steps.extract_repo.outputs.repo }}
           target_url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
       # 🗨️ Add or update PR feedback comment
