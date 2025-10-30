@@ -49,18 +49,10 @@ jobs:
           cache: gradle
 
       # ----------------------------------------------
-      # 🧱 Install dependencies
-      # ----------------------------------------------
-      - name: 🧱 Install dependencies (Gradle)
-        if: hashFiles('build.gradle*') != ''
-        run: ./gradlew clean assemble --no-daemon
-
-      # ----------------------------------------------
       # 🧪 RUN TESTS
       # ----------------------------------------------
       - name: 🧪 Run Gradle Tests
-        if: hashFiles('build.gradle*') != ''
-        run: ./gradlew test --no-daemon --stacktrace
+        run: ./gradlew clean test --no-daemon --stacktrace
 
       # ----------------------------------------------
       # 📦 UPLOAD TEST RESULTS (optional, visible in central CI)
@@ -69,7 +61,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-results-${{ inputs.service }}
+          name: test-results-${{ inputs.service.replace('/', '@') }}
           path: |
             target/surefire-reports/**
             build/test-results/**
