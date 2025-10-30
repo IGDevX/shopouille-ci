@@ -16,13 +16,14 @@ on:
 
 jobs:
   coverage:
+    name: 📊 Run Coverage for ${{ inputs.service }}
     runs-on: ubuntu-latest
     continue-on-error: ${{ !inputs.blocking }}
 
     steps:
       - name: 🧾 Log Context
         run: |
-          echo "🧪 Running tests for: ${{ inputs.service }}"
+          echo "🧪 Running coverage for: ${{ inputs.service }}"
           echo "Triggered by: ${{ github.actor }}"
           echo "Workflow Repository: ${{ github.repository }}"
           echo "Target Commit: ${{ inputs.sha }}"

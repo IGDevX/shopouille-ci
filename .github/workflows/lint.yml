@@ -16,6 +16,7 @@ on:
 
 jobs:
   lint:
+    name: 🔍 Run Lint for ${{ inputs.service }}
     runs-on: ubuntu-latest
     continue-on-error: ${{ !inputs.blocking }}
 
