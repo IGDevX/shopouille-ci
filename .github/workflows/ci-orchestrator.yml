@@ -60,7 +60,7 @@ jobs:
 
   merge:
     needs: [dispatch]
-    if: ${{ needs.dispatch.outputs.event_name == 'merge' && contains('develop,staging,main', needs.dispatch.outputs.branch) }}
+    if: ${{ needs.dispatch.outputs.event_name == 'push' && contains('develop,staging,main', needs.dispatch.outputs.branch) }}
     uses: ./.github/workflows/merge.yml
     with:
       service: ${{ needs.dispatch.outputs.service }}
