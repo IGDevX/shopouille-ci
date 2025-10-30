@@ -57,11 +57,18 @@ jobs:
       # ----------------------------------------------
       # 📦 UPLOAD TEST RESULTS (optional, visible in central CI)
       # ----------------------------------------------
+      - name: Sanitize service for artifact name
+        id: sanitize
+        run: |
+          s="${{ inputs.service }}"
+          s="${s//\//-}"          # replace '/' with '-'
+          echo "safe=${s}" >> $GITHUB_OUTPUT
+
       - name: 📤 Upload Test Reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-results-${{ inputs.service.replace('/', '@') }}
+          name: test-results-${{ steps.sanitize.outputs.safe }}
           path: |
             target/surefire-reports/**
             build/test-results/**
