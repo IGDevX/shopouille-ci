@@ -18,6 +18,12 @@ jobs:
     outputs:
       branch: ${{ env.BRANCH_NAME }}
       service: ${{ env.SERVICE_REPO }}
+    steps:
+      - name: Log context
+        run: |
+          echo "Triggered by $ACTOR_NAME on $SERVICE_REPO@$BRANCH_NAME ($COMMIT_SHA)"
+          echo "Branch: $BRANCH_NAME"
+          echo "Service: $SERVICE_REPO"
 
   feature_hotfix:
     needs: [dispatch]
