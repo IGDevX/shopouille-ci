@@ -26,6 +26,7 @@ jobs:
     with:
       blocking: true
       service: ${{ inputs.service }}
+      sha: ${{ inputs.sha }}
     secrets: inherit
 
   lint:
@@ -34,4 +35,5 @@ jobs:
     with:
       blocking: true
       service: ${{ inputs.service }}
+      sha: ${{ inputs.sha }}
     secrets: inherit
