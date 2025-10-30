@@ -18,6 +18,7 @@ jobs:
     outputs:
       branch: ${{ env.BRANCH_NAME }}
       service: ${{ env.SERVICE_REPO }}
+      event_name: ${{ env.EVENT_NAME }}
     steps:
       - name: Log context
         run: |
@@ -35,7 +36,7 @@ jobs:
 
   develop_pr:
     needs: [dispatch]
-    if: needs.dispatch.outputs.branch == 'develop'
+    if: needs.dispatch.outputs.event_name == 'pull_request' && needs.dispatch.outputs.branch == 'develop'
     uses: ./.github/workflows/develop-pr.yml
     with:
       service: ${{ needs.dispatch.outputs.service }}
@@ -43,7 +44,7 @@ jobs:
 
   staging_pr:
     needs: [dispatch]
-    if: needs.dispatch.outputs.branch == 'staging'
+    if: needs.dispatch.outputs.event_name == 'pull_request' && needs.dispatch.outputs.branch == 'staging'
     uses: ./.github/workflows/staging-pr.yml
     with:
       service: ${{ needs.dispatch.outputs.service }}
@@ -51,8 +52,16 @@ jobs:
 
   main_pr:
     needs: [dispatch]
-    if: needs.dispatch.outputs.branch == 'main'
+    if: needs.dispatch.outputs.event_name == 'pull_request' && needs.dispatch.outputs.branch == 'main'
     uses: ./.github/workflows/main-pr.yml
+    with:
+      service: ${{ needs.dispatch.outputs.service }}
+    secrets: inherit
+
+  merge:
+    needs: [dispatch]
+    if: ${{ needs.dispatch.outputs.event_name == 'merge' && contains('develop,staging,main', needs.dispatch.outputs.branch) }}
+    uses: ./.github/workflows/merge.yml
     with:
       service: ${{ needs.dispatch.outputs.service }}
     secrets: inherit

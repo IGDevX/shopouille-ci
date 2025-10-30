@@ -1,0 +1,30 @@
+name: 🔀 Merge Validation
+run-name: 🔀 ${{ inputs.service }} • Merge Stage
+
+on:
+  workflow_call:
+    inputs:
+      service:
+        required: true
+        type: string
+    secrets: inherit
+
+jobs:
+  merge:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Log Merge Context
+        run: |
+          echo "🔀 Running merge validation for ${{ inputs.service }}"
+          echo "Triggered by ${{ github.actor }}"
+          echo "Repository: ${{ github.repository }}"
+          echo "Ref: ${{ github.ref_name }}"
+
+      - name: Placeholder for merge validation logic
+        run: |
+          echo "🧩 Simulating post-merge validation..."
+          echo "status=success" >> $GITHUB_OUTPUT
+
+      - name: Merge result summary
+        run: echo "✅ Merge validation for ${{ inputs.service }} completed successfully"
