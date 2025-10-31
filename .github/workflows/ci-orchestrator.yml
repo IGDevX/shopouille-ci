@@ -51,6 +51,7 @@ jobs:
     uses: ./.github/workflows/merge.yml
     with:
       service: ${{ needs.dispatch.outputs.service }}
+      sha: ${{ needs.dispatch.outputs.sha }}
     secrets: inherit
 
   final-status:
@@ -116,7 +117,6 @@ jobs:
           repository: ${{ env.SERVICE_REPO }}
           issue-number: ${{ env.PR_NUMBER }}
           edit-mode: replace
-          comment-author: github-actions[bot]
           body: |
             ### 🏁 **Shopouille Central CI Results**
 

@@ -1,5 +1,5 @@
-name: 🔀 Merge Validation
-run-name: 🔀 ${{ inputs.service }} • Merge Stage
+name: 🐳 Build & Push Quarkus Service
+run-name: 🐳 ${{ inputs.service }} • Docker Build & Push
 
 on:
   workflow_call:
@@ -7,23 +7,49 @@ on:
       service:
         required: true
         type: string
+      sha:
+        required: true
+        type: string
 
 jobs:
-  merge:
+  docker:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Log Merge Context
+      - name: Log Context
         run: |
-          echo "🔀 Running merge validation for ${{ inputs.service }}"
-          echo "Triggered by ${{ github.actor }}"
-          echo "Repository: ${{ github.repository }}"
-          echo "Ref: ${{ github.ref_name }}"
+          echo "🐳 Building Quarkus service for: ${{ inputs.service }}"
+          echo "Triggered by: ${{ github.actor }}"
+          echo "Workflow Repository: ${{ github.repository }}"
+          echo "Target Commit: ${{ inputs.sha }}"
 
-      - name: Placeholder for merge validation logic
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Build Quarkus JAR
+        run: ./gradlew build -x test
+
+      - name: Docker Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build & Push Docker Image
         run: |
-          echo "🧩 Simulating post-merge validation..."
-          echo "status=success" >> $GITHUB_OUTPUT
+          IMAGE=ghcr.io/${{ inputs.service }}:${{ inputs.sha }}
+          IMAGE=$(echo "$IMAGE" | tr '[:upper:]' '[:lower:]')
+          echo "Building image: $IMAGE"
+          docker build -t "$IMAGE" .
+          echo "Pushing image: $IMAGE"
+          docker push "$IMAGE"
 
-      - name: Merge result summary
-        run: echo "✅ Merge validation for ${{ inputs.service }} completed successfully"
+      - name: Build Summary
+        run: echo "✅ Quarkus service ${{ inputs.service }} built and pushed to GHCR successfully."
